@@ -108,6 +108,18 @@ target_compile_options(Mud98PersistJson PRIVATE
     $<$<C_COMPILER_ID:GNU>:-std=gnu2x>
     # Clang-specific
     $<$<C_COMPILER_ID:Clang>:-std=c2x>
+    # AppleClang-specific
+    $<$<C_COMPILER_ID:AppleClang>:-std=c2x>
+    # macOS: AppleClang enforces warnings that are disabled by default elsewhere
+    # -Wstrict-prototypes: Outdated in C23 where empty () is equivalent to (void)
+    # -Wunused-*: Stricter enforcement than GCC/Clang defaults
+    # -Wnewline-eof: Pedantic about missing final newlines
+    $<$<AND:$<NOT:$<C_COMPILER_ID:MSVC>>,$<PLATFORM_ID:Darwin>>:
+        -Wno-strict-prototypes
+        -Wno-unused-but-set-variable
+        -Wno-unused-function
+        -Wno-newline-eof
+    >
 )
 
 # Compile definitions
