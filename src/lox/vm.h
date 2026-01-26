@@ -52,19 +52,19 @@ typedef struct {
 extern VM vm;
 
 bool call_closure(ObjClosure* closure, int arg_count);
-void init_vm(void);
-void free_vm(void);
+void init_vm();
+void free_vm(); 
 InterpretResult interpret_code(const char* source);
 void push(Value value);
-Value pop(void);
+Value pop();
 Value peek(int distance);
-InterpretResult run(void);
+InterpretResult run();
 void runtime_error(const char* format, ...);
 InterpretResult call_function(const char* fn_name, int count, ...);
 void init_entity_class(Entity* entity);
 void invoke_method_closure(Value receiver, ObjClosure* closure, int count, ...);
 
 void gc_protect(Value value);
-void gc_protect_clear(void);
+void gc_protect_clear();
 
 #endif

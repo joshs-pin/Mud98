@@ -45,7 +45,7 @@ typedef enum faction_standing_t {
 
 extern Table faction_table;
 
-void init_faction_consts(void);
+void init_faction_consts();
 
 Faction* faction_create(VNUM vnum);
 Faction* get_faction(VNUM vnum);

@@ -29,10 +29,10 @@ typedef struct help_area_t {
     bool changed;
 } HelpArea;
 
-HelpData* new_help_data(void);
+HelpData* new_help_data();
 void free_help_data(HelpData* help);
 
-HelpArea* new_help_area(void);
+HelpArea* new_help_area();
 void free_help_area(HelpArea* help_area);
 
 extern HelpArea* help_area_list;

@@ -11,17 +11,17 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-void load_config(void);
+void load_config();
 
 #define DECLARE_CONFIG(val, type)                                              \
     void cfg_set_ ## val(type new_val);                                        \
-    type cfg_get_ ## val(void);
+    type cfg_get_ ## val();
 
 #define DECLARE_OPEN_CFG_FILE(val, rw)                                         \
-    FILE* open_ ## rw ## _ ## val(void);
+    FILE* open_ ## rw ## _ ## val();
 
 #define DECLARE_FILE_EXISTS(val)                                               \
-    bool val ## _exists(void);
+    bool val ## _exists();
 
 #define DECLARE_FILE_CONFIG(val)                                               \
     DECLARE_CONFIG(val, const char*)                                           \
