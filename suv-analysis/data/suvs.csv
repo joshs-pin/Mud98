@@ -1,0 +1,33 @@
+model,year_start,year_end,generation,construction,weight_kg,wheel_track_mm,wheelbase_mm,length_mm,width_mm,height_mm,ground_clearance_mm,torsional_rigidity_rating,notes
+Jeep Cherokee XJ,1984,2001,XJ,unibody (uniframe),1550,1465,2576,4239,1791,1638,203,4,Stiff unibody for its era; light; solid axles; legendary trail platform
+Jeep Wrangler YJ,1987,1995,YJ,body-on-frame (ladder),1350,1465,2373,3800,1676,1770,210,2,Leaf-sprung; short wheelbase; deliberately flexible frame
+Jeep Wrangler TJ,1997,2006,TJ,body-on-frame (ladder),1450,1486,2373,3950,1694,1786,254,2,Coil-sprung solid axles; excellent articulation; very flexible frame
+Jeep Grand Cherokee ZJ,1993,1998,ZJ,unibody,1700,1490,2690,4521,1790,1632,203,4,Quadra-Coil solid axles; stiff unibody
+Jeep Grand Cherokee WJ,1999,2004,WJ,unibody,1860,1505,2690,4622,1834,1745,206,4,Stiff unibody; solid axles; good highway manners
+Toyota 4Runner 3rd gen,1996,2002,N180,body-on-frame (ladder),1800,1455,2690,4595,1695,1750,250,3,Narrow body; durable; IFS front solid rear
+Toyota 4Runner 4th gen,2003,2009,N210,body-on-frame (ladder),1950,1605,2790,4805,1910,1780,230,3,V8 available; KDSS option; robust frame
+Toyota 4Runner 5th gen,2010,2015,N280,body-on-frame (ladder),2050,1640,2790,4820,1925,1815,235,3,Strong aftermarket; TRD trims; capable stock
+Toyota Land Cruiser 80,1990,1997,J80,body-on-frame (ladder),2200,1560,2850,4760,1930,1830,220,3,Solid axles front and rear; triple lockers available; very durable
+Toyota Land Cruiser 100,1998,2007,J100,body-on-frame (ladder),2350,1620,2850,4890,1940,1850,215,3,IFS front; heavy; very reliable; long range
+Toyota FJ Cruiser,2007,2014,XJ10,body-on-frame (ladder),1920,1605,2690,4670,1905,1830,244,3,Retro styling; excellent angles; rear lockers on Trail trims
+Mitsubishi Montero 2nd gen,1991,1999,V20,body-on-frame (ladder),2000,1470,2725,4655,1775,1900,235,3,Dakar pedigree; solid platform; LWB and SWB
+Mitsubishi Montero 3rd gen,2000,2006,V60,monocoque + integrated ladder,2200,1560,2780,4900,1875,1900,235,4,Built-in ladder frame; stiff body; independent suspension all round
+Nissan Patrol Y60,1987,1997,Y60,body-on-frame (ladder),2100,1480,2970,4885,1795,1865,205,3,Solid axles; coil sprung; outstanding durability
+Nissan Patrol Y61,1997,2010,Y61,body-on-frame (ladder),2300,1545,2970,4960,1840,1855,210,3,Solid axles; heavy-duty; popular expedition base
+Nissan Xterra 1st gen,2000,2004,WD22,body-on-frame (ladder),1850,1535,2650,4521,1791,1816,233,3,Truck-based; affordable; good aftermarket
+Nissan Xterra 2nd gen,2005,2015,N50,body-on-frame (ladder),2000,1600,2700,4540,1850,1905,232,3,F-Alpha platform; rear locker on Off-Road trims
+Land Rover Defender 90,1990,2016,L316,body-on-frame (ladder),1700,1486,2360,3883,1790,1965,250,3,Aluminium body; short wheelbase; superb angles; coil sprung
+Land Rover Defender 110,1990,2016,L316,body-on-frame (ladder),1900,1486,2794,4599,1790,2021,250,3,Aluminium body; long wheelbase; expedition favourite
+Land Rover Discovery 1,1989,1998,L318,body-on-frame (ladder),1970,1486,2540,4521,1793,1925,200,3,Range Rover Classic running gear; coil sprung
+Land Rover Discovery 2,1998,2004,L318,body-on-frame (ladder),2100,1530,2540,4705,1890,1940,200,3,ACE and traction control; capable but electronics-heavy
+Suzuki Samurai,1986,1995,SJ,body-on-frame (ladder),1060,1205,2030,3430,1465,1700,240,2,Very light and narrow; tiny footprint; flexible frame
+Suzuki Jimny,1998,2018,JB,body-on-frame (ladder),1090,1265,2250,3645,1600,1705,190,2,Light; narrow; great for tight trails; low clearance stock
+Suzuki Grand Vitara,2005,2015,JB,monocoque + integrated ladder,1700,1540,2640,4500,1810,1695,200,4,Built-in ladder frame; low-range; underrated capability
+Isuzu Trooper,1991,2002,UBS,body-on-frame (ladder),1950,1470,2760,4730,1745,1850,205,3,Robust; narrow; torsion-bar front; durable diesels overseas
+Ford Bronco full-size,1992,1996,5th gen,body-on-frame (ladder),2100,1605,2718,4719,1976,1859,200,3,V8 power; full-size; removable top; solid front axle
+Ford Explorer 2nd gen,1995,2001,UN105,body-on-frame (ladder),1850,1490,2570,4790,1786,1683,203,3,Common and cheap; low roof; modest articulation
+Chevrolet Tahoe 2dr,1995,1999,GMT400,body-on-frame (ladder),2300,1554,2832,4775,1949,1821,200,3,Full-size 2-door; V8; solid rear axle IFS front; heavy but strong
+Lexus GX470,2003,2009,J120,body-on-frame (ladder),2100,1605,2790,4780,1880,1880,198,3,Land Cruiser Prado underneath; KDSS; locking center diff; very durable
+Mercedes-Benz G-Wagen,1990,2018,W463,body-on-frame (ladder),2100,1490,2850,4662,1760,1931,210,4,Triple locking diffs; very rigid ladder frame; portal-like capability
+Hummer H3,2006,2010,GMT355,body-on-frame (ladder),2150,1610,2842,4742,1897,1872,234,3,Narrow track tuning; locker available; capable but thirsty
+Lada Niva,1977,2015,2121,unibody,1210,1440,2200,3740,1680,1640,220,3,Permanent 4WD; light unibody; cheap and simple; surprisingly capable

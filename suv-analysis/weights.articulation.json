@@ -1,0 +1,10 @@
+{
+  "_comment": "Example: an articulation-first build that prizes a flexible chassis and ground clearance over on-road stiffness. Treats torsional rigidity as 'lower is better' (flex = articulation) and bumps clearance. Copy and tune freely; any numeric column may be weighted, weights are auto-normalised.",
+  "ground_clearance_mm":       {"weight": 0.35, "direction": "higher"},
+  "torsional_rigidity_rating": {"weight": 0.10, "direction": "lower"},
+  "wheelbase_mm":              {"weight": 0.20, "direction": "band", "band": [2300, 2650]},
+  "weight_kg":                 {"weight": 0.15, "direction": "lower"},
+  "width_mm":                  {"weight": 0.10, "direction": "lower"},
+  "wheel_track_mm":            {"weight": 0.05, "direction": "higher"},
+  "height_mm":                 {"weight": 0.05, "direction": "lower"}
+}
