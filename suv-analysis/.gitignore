@@ -1,0 +1,5 @@
+# Turso/SQLite database is generated from data/suvs.csv via build_db.sh
+suvs.db
+*.db
+*.db-wal
+*.db-shm

@@ -28,6 +28,41 @@ Requires only **Python 3** (tested with the standard library — `csv`, `json`,
 
 ---
 
+## Optional: query it with Turso (Rust SQLite)
+
+The CSV stays the at-rest source of truth, but you can also load it into
+**[Turso](https://github.com/tursodatabase/turso)** — the from-scratch Rust
+rewrite of SQLite — and query it with SQL. The Turso shell binary is
+`tursodb`.
+
+```bash
+./build_db.sh                       # rebuilds suvs.db from data/suvs.csv
+tursodb suvs.db "SELECT model, score FROM suv_scores ORDER BY score DESC LIMIT 10"
+tursodb suvs.db < queries.sql       # run the example analyses
+```
+
+`build_db.sh` is idempotent: it stages the CSV in an all-TEXT table, imports
+it (`.import --csv --skip 1`), casts the numeric columns into a typed `suvs`
+table, and creates a **`suv_scores` view** that computes the exact same
+weighted off-road score as `analyze.py` — the two implementations agree to
+the decimal (Wrangler TJ = 74.0 in both). See [`score_view.sql`](score_view.sql)
+for the scoring SQL and [`queries.sql`](queries.sql) for worked examples.
+
+> **Gotcha worth knowing:** Turso's `.import` is a *shell meta-command*, not
+> SQL, so it is ignored when a `.sql` file is piped in via `<`. It must be fed
+> on stdin — which is why the import lives in `build_db.sh` rather than a pure
+> `.sql` file. The pure-SQL files (`score_view.sql`, `queries.sql`) run fine
+> via redirection.
+
+The generated `suvs.db` is git-ignored (it's regenerable from the CSV).
+
+**Installing tursodb** (if not already present): grab the prebuilt binary for
+your platform from the [releases page](https://github.com/tursodatabase/turso/releases)
+(this project was built against `v0.6.1`), or build from source with
+`cargo install` per the upstream README.
+
+---
+
 ## The properties tracked
 
 You asked to track nine physical properties. Here is how each maps to a
@@ -190,8 +225,12 @@ suv-analysis/
 ├── README.md                     # this file
 ├── analyze.py                    # the stdlib-only analysis tool
 ├── weights.articulation.json     # example alternate scoring profile
+├── build_db.sh                   # build the Turso DB from the CSV (idempotent)
+├── score_view.sql                # weighted off-road score as a SQL view
+├── queries.sql                   # example SQL analyses
+├── .gitignore                    # ignores the generated *.db
 └── data/
-    └── suvs.csv                  # the dataset "at rest"
+    └── suvs.csv                  # the dataset "at rest" (source of truth)
 ```
 
 ## Extending the dataset
