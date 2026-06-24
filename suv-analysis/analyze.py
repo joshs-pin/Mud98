@@ -71,6 +71,18 @@ NUMERIC_COLS = [
     "year_start", "year_end",
 ]
 
+# Physical properties compared in the correlation matrix / heatmap, with short
+# display labels. Shared by print_correlations() and the PPM heatmap.
+CORR_COLS = [
+    ("ground_clearance_mm", "clear"),
+    ("wheelbase_mm", "wbase"),
+    ("weight_kg", "mass"),
+    ("wheel_track_mm", "track"),
+    ("width_mm", "width"),
+    ("height_mm", "hght"),
+    ("torsional_rigidity_rating", "rigid"),
+]
+
 
 # ---------------------------------------------------------------------------
 # Data loading
@@ -294,9 +306,7 @@ def _g(v):
 
 
 def print_correlations(rows):
-    cols = ["ground_clearance_mm", "wheelbase_mm", "weight_kg",
-            "wheel_track_mm", "width_mm", "height_mm",
-            "torsional_rigidity_rating"]
+    cols = [c for c, _ in CORR_COLS]
     short = {
         "ground_clearance_mm": "clear",
         "wheelbase_mm": "wbase",
@@ -350,6 +360,167 @@ def write_csv(rows, path, config):
 
 
 # ---------------------------------------------------------------------------
+# PPM visualisation (stdlib only -- no image libraries)
+# ---------------------------------------------------------------------------
+# PPM (Netpbm portable pixmap) is the image-world equivalent of our CSV: just
+# files, no library required. We render charts by writing a binary (P6) header
+# and raw RGB bytes by hand. View a .ppm with any image tool, or convert with
+# e.g. `pnmtopng score_bars.ppm > score_bars.png`.
+
+# Compact 3x5 bitmap font, just the glyphs we need for axis/rank labels.
+_FONT = {
+    "0": ("111", "101", "101", "101", "111"),
+    "1": ("010", "110", "010", "010", "111"),
+    "2": ("111", "001", "111", "100", "111"),
+    "3": ("111", "001", "111", "001", "111"),
+    "4": ("101", "101", "111", "001", "001"),
+    "5": ("111", "100", "111", "001", "111"),
+    "6": ("111", "100", "111", "101", "111"),
+    "7": ("111", "001", "010", "010", "010"),
+    "8": ("111", "101", "111", "101", "111"),
+    "9": ("111", "101", "111", "001", "111"),
+    "+": ("000", "010", "111", "010", "000"),
+    "-": ("000", "000", "111", "000", "000"),
+    ".": ("000", "000", "000", "000", "010"),
+}
+
+
+class _Image:
+    """Minimal RGB framebuffer that writes a binary (P6) PPM. No dependencies."""
+
+    def __init__(self, w, h, bg=(255, 255, 255)):
+        self.w, self.h = w, h
+        self.px = bytearray(bg * (w * h))
+
+    def rect(self, x, y, w, h, c):
+        x0, y0 = max(0, x), max(0, y)
+        x1, y1 = min(self.w, x + w), min(self.h, y + h)
+        for yy in range(y0, y1):
+            base = (yy * self.w + x0) * 3
+            for xx in range(x1 - x0):
+                i = base + xx * 3
+                self.px[i], self.px[i + 1], self.px[i + 2] = c
+
+    def write_ppm(self, path):
+        with open(path, "wb") as fh:
+            fh.write(b"P6\n%d %d\n255\n" % (self.w, self.h))
+            fh.write(bytes(self.px))
+
+
+def _glyph(img, ch, x, y, scale, color):
+    rows = _FONT.get(ch)
+    if not rows:
+        return
+    for ry, row in enumerate(rows):
+        for cx, bit in enumerate(row):
+            if bit == "1":
+                img.rect(x + cx * scale, y + ry * scale, scale, scale, color)
+
+
+def _text(img, s, x, y, scale, color):
+    cur = x
+    for ch in str(s):
+        _glyph(img, ch, cur, y, scale, color)
+        cur += 4 * scale  # 3px glyph + 1px gap, scaled
+    return cur - x
+
+
+def _lerp(a, b, t):
+    return tuple(int(round(a[i] + (b[i] - a[i]) * t)) for i in range(3))
+
+
+def _corr_color(r):
+    """Diverging colormap: red=+1, pale=0, blue=-1; grey for missing."""
+    if r is None:
+        return (180, 180, 180)
+    t = min(1.0, abs(r))
+    return _lerp((245, 245, 245), (200, 40, 40) if r >= 0 else (40, 70, 200), t)
+
+
+def _score_color(s, lo, hi):
+    """Sequential red->yellow->green by score within the shown range."""
+    u = 0.0 if hi == lo else (s - lo) / (hi - lo)
+    red, yellow, green = (200, 60, 50), (225, 200, 60), (50, 165, 75)
+    return _lerp(red, yellow, u / 0.5) if u < 0.5 \
+        else _lerp(yellow, green, (u - 0.5) / 0.5)
+
+
+def build_heatmap_ppm(rows, path):
+    """Correlation heatmap of the physical properties -> PPM image."""
+    cols = [c for c, _ in CORR_COLS]
+    n = len(cols)
+    matrix = correlation_matrix(rows, cols)
+    cell, pad_l, pad_t = 54, 34, 34
+    bar_gap, bar_w, pad_r = 16, 22, 60
+    grid = n * cell
+    W = pad_l + grid + bar_gap + bar_w + pad_r
+    H = pad_t + grid + 12
+    img = _Image(W, H)
+
+    # axis index labels (1..n) along top and left
+    for i in range(n):
+        _text(img, i + 1, pad_l + i * cell + cell // 2 - 4, pad_t - 16, 3, (40, 40, 40))
+        _text(img, i + 1, pad_l - 18, pad_t + i * cell + cell // 2 - 7, 3, (40, 40, 40))
+
+    # cells
+    for ri, a in enumerate(cols):
+        for ci, b in enumerate(cols):
+            img.rect(pad_l + ci * cell, pad_t + ri * cell, cell, cell,
+                     _corr_color(matrix[a][b]))
+    # white grid lines
+    for k in range(n + 1):
+        img.rect(pad_l + k * cell, pad_t, 1, grid + 1, (255, 255, 255))
+        img.rect(pad_l, pad_t + k * cell, grid + 1, 1, (255, 255, 255))
+
+    # vertical colour-scale bar (+1 top .. -1 bottom)
+    bx = pad_l + grid + bar_gap
+    for j in range(grid):
+        img.rect(bx, pad_t + j, bar_w, 1, _corr_color(1.0 - 2.0 * (j / (grid - 1))))
+    _text(img, "+1", bx + bar_w + 4, pad_t - 2, 3, (40, 40, 40))
+    _text(img, "0", bx + bar_w + 4, pad_t + grid // 2 - 7, 3, (40, 40, 40))
+    _text(img, "-1", bx + bar_w + 4, pad_t + grid - 14, 3, (40, 40, 40))
+
+    img.write_ppm(path)
+    print("wrote correlation heatmap -> %s  (%dx%d PPM)" % (path, W, H))
+    print("  axis index legend:")
+    for i, (c, lbl) in enumerate(CORR_COLS):
+        print("    %d = %-26s (%s)" % (i + 1, c, lbl))
+    print("  colour: red=+1 (move together), blue=-1 (opposite), pale=~0")
+
+
+def build_barchart_ppm(rows, path, top=None):
+    """Horizontal bar chart of the off-road score (0..100) -> PPM image."""
+    ranked = sorted(rows, key=lambda r: r["score"], reverse=True)
+    if top:
+        ranked = ranked[:top]
+    n = len(ranked)
+    pitch, barh = 18, 13
+    pad_l, pad_t, pad_b, plot_w, pad_r = 30, 14, 10, 300, 26
+    W = pad_l + plot_w + pad_r
+    H = pad_t + n * pitch + pad_b
+    img = _Image(W, H)
+    scores = [r["score"] for r in ranked]
+    lo, hi = min(scores), max(scores)
+
+    # faint vertical gridlines at 0/25/50/75/100 points of score
+    for g in (0, 25, 50, 75, 100):
+        img.rect(pad_l + int(g / 100 * plot_w), pad_t, 1, n * pitch, (224, 224, 224))
+    # bars + rank numbers
+    for i, r in enumerate(ranked):
+        y = pad_t + i * pitch
+        blen = max(1, int(r["score"] / 100 * plot_w))
+        img.rect(pad_l, y, blen, barh, _score_color(r["score"], lo, hi))
+        _text(img, i + 1, 4, y + 3, 3, (60, 60, 60))
+    img.rect(pad_l, pad_t, 1, n * pitch, (120, 120, 120))  # baseline
+
+    img.write_ppm(path)
+    print("wrote score bar chart -> %s  (%dx%d PPM)" % (path, W, H))
+    print("  rank legend (bar length = score 0-100, green=high red=low):")
+    for i, r in enumerate(ranked):
+        print("    %2d. %-26s %5.1f" % (i + 1, r["model"], r["score"]))
+
+
+# ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
 def load_weights(path):
@@ -392,6 +563,11 @@ def main(argv=None):
                    help="print a scoring breakdown for one vehicle")
     p.add_argument("--csv-out", default=None,
                    help="write the ranked table to a CSV file")
+    p.add_argument("--ppm-heatmap", metavar="PATH", default=None,
+                   help="write the property-correlation heatmap as a PPM image")
+    p.add_argument("--ppm-bars", metavar="PATH", default=None,
+                   help="write the off-road score bar chart as a PPM image "
+                        "(respects --top)")
     p.add_argument("--list-weights", action="store_true",
                    help="print the active scoring weights and exit")
     args = p.parse_args(argv)
@@ -417,6 +593,13 @@ def main(argv=None):
 
     if args.show_detail:
         print_detail(rows, args.show_detail, config)
+        return 0
+
+    if args.ppm_heatmap or args.ppm_bars:
+        if args.ppm_heatmap:
+            build_heatmap_ppm(rows, args.ppm_heatmap)
+        if args.ppm_bars:
+            build_barchart_ppm(rows, args.ppm_bars, top=args.top)
         return 0
 
     # Sorting. Score and clearance default to best-first (descending) unless

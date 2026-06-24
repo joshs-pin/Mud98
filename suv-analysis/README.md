@@ -201,6 +201,35 @@ deliberately, not something you get "for free" by buying a bigger vehicle.
 
 ---
 
+## Visualise it — PPM images, zero dependencies
+
+You can render the analysis as images **without any plotting library**. The
+charts are written as **PPM** (Netpbm portable pixmap) — the image-world
+equivalent of our CSV: just a header plus raw RGB bytes, written by hand from
+the standard library. PPM is the right primitive for a "no heavy tooling"
+project (matplotlib would be a large dependency for one chart).
+
+```bash
+python3 analyze.py --ppm-heatmap correlation.ppm     # property correlation heatmap
+python3 analyze.py --ppm-bars score_bars.ppm --top 12  # off-road score bar chart
+```
+
+- **Heatmap** — the correlation matrix as a diverging colormap (red = +1, blue
+  = −1, pale = ~0), with a colour-scale bar. An index→property legend prints to
+  stdout. The size-correlated cluster (wheelbase/mass/track/width) lights up
+  red; ground clearance stays pale, exactly as the numbers say.
+- **Bar chart** — each SUV's composite score as a bar, longest first, coloured
+  green (high) → red (low), with rank numbers drawn on the image and a
+  rank→model legend printed to stdout.
+
+> **Viewing `.ppm`:** most modern viewers won't open PPM directly. Convert it
+> for sharing — e.g. `pnmtopng score_bars.ppm > score_bars.png`, ImageMagick
+> `convert score_bars.ppm score_bars.png`, or any online PPM viewer. PPM is a
+> great *internal/zero-dep* format, a poor *delivery* format. (Generated
+> `*.ppm`/`*.png` are git-ignored.)
+
+---
+
 ## Full option list
 
 ```
@@ -214,6 +243,8 @@ deliberately, not something you get "for free" by buying a bigger vehicle.
 --show-detail MODEL   print a per-property scoring breakdown for one vehicle
 --list-weights        print the active weights and exit
 --csv-out FILE.csv    write the ranked table out as CSV
+--ppm-heatmap PATH    render the correlation heatmap as a PPM image
+--ppm-bars PATH       render the score bar chart as a PPM image (respects --top)
 ```
 
 ---
@@ -228,7 +259,7 @@ suv-analysis/
 ├── build_db.sh                   # build the Turso DB from the CSV (idempotent)
 ├── score_view.sql                # weighted off-road score as a SQL view
 ├── queries.sql                   # example SQL analyses
-├── .gitignore                    # ignores the generated *.db
+├── .gitignore                    # ignores generated *.db / *.ppm / *.png
 └── data/
     └── suvs.csv                  # the dataset "at rest" (source of truth)
 ```
